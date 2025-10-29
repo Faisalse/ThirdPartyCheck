@@ -1,0 +1,11 @@
+Mon 27 Oct 2025 16:34:37 INFO - {'gpu': '0', 'seed': 2022, 'reproducibility': True, 'state': None, 'algo_name': 'ngcf', 'topk': 50, 'cand_num': 40981, 'sample_method': 'uniform', 'sample_ratio': 0, 'num_ng': 1, 'res_path': None, 'dataset': 'gowalla', 'UID_NAME': 'user', 'IID_NAME': 'item', 'INTER_NAME': 'rating', 'binary_inter': True, 'positive_threshold': None, 'metrics': ['recall', 'mrr', 'ndcg', 'hit', 'precision'], 'batch_size': 1024, 'loss_type': 'BPR', 'init_method': 'default', 'optimizer': 'default', 'early_stop': False, 'factors': 64, 'node_dropout': 0.1, 'mess_dropout': 0.1, 'lr': 0.0001, 'reg_1': 0.0001, 'reg_2': 0.0001, 'epochs': 1, 'hidden_size_list': None, 'user_num': 29858, 'item_num': 40981}
+Mon 27 Oct 2025 16:37:23 INFO - Start Calculating Metrics...
+Mon 27 Oct 2025 16:38:31 INFO - ==========================
+Mon 27 Oct 2025 16:38:31 INFO - Generate recommend list...
+Mon 27 Oct 2025 16:38:31 INFO - ==========================
+Mon 27 Oct 2025 16:38:47 INFO - Save metric@k result to res folder...
+Mon 27 Oct 2025 16:39:00 INFO - Recall@10: 0.0079
+Mon 27 Oct 2025 16:39:00 INFO - MRR@10: 0.0190
+Mon 27 Oct 2025 16:39:00 INFO - NDCG@10: 0.0260
+Mon 27 Oct 2025 16:39:00 INFO - Hit Ratio@10: 0.0503
+Mon 27 Oct 2025 16:39:00 INFO - Precision@10: 0.0060

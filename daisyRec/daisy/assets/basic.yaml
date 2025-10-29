@@ -1,0 +1,22 @@
+gpu: '0'
+seed: 2022
+reproducibility: True
+state: ~
+
+algo_name: 'ngcf'
+topk: 50
+cand_num: 1000
+sample_method: 'uniform'
+sample_ratio: 0
+num_ng: 4
+
+
+res_path: ~
+dataset: 'gowalla' # 
+UID_NAME: user
+IID_NAME: item
+INTER_NAME: rating
+binary_inter: True
+positive_threshold: ~
+metrics: ["recall","mrr","ndcg","hit","precision"]
+

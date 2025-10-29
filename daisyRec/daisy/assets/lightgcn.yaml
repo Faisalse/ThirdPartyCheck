@@ -1,0 +1,16 @@
+batch_size: 1024
+loss_type: 'BPR'
+init_method: 'default'
+optimizer: 'default'
+early_stop: False
+factors: 64
+lr: 0.01
+reg_1: 0
+reg_2: 0
+epochs: 1
+num_layers: 2
+
+# Yelp2018 dataset: --regs [1e-4] --embed_size 64 --layer_size [64,64,64] --lr 0.001 --batch_size 2048 --epoch 1000
+# Amazon-book dataset: --regs [1e-4] --embed_size 64 --layer_size [64,64,64] --lr 0.001 --batch_size 8192 --epoch 1000
+# Gowalla dataset: --regs [1e-4] --embed_size 64 --layer_size [64,64,64] --lr 0.001 --batch_size 2048 --epoch 1000
+# loss: BPR
