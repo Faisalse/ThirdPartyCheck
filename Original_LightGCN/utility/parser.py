@@ -24,7 +24,7 @@ def parse_args():
                         help='Interval of evaluation.')
     parser.add_argument('--is_norm', type=int, default=1,
                     help='Interval of evaluation.')
-    parser.add_argument('--epoch', type=int, default=1000,
+    parser.add_argument('--epoch', type=int, default=1,
                         help='Number of epoch.')
 
     parser.add_argument('--embed_size', type=int, default=64,

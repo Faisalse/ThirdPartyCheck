@@ -12,7 +12,7 @@ import multiprocessing
 import heapq
 import numpy as np
 cores = multiprocessing.cpu_count() // 2
-
+import pandas as pd
 args = parse_args()
 
 data_generator = Data(path=args.data_path + args.dataset, batch_size=args.batch_size)
@@ -22,7 +22,7 @@ N_TRAIN, N_TEST = data_generator.n_train, data_generator.n_test
 BATCH_SIZE = args.batch_size
 
 
-def test(sess, model, users_to_test, drop_flag=False, train_set_flag=0):
+def test(sess, model, users_to_test, drop_flag=False, train_set_flag=0, save_recommendation_files = False):
     # B: batch size
     # N: the number of items
     top_show = np.sort(model.Ks)
@@ -53,7 +53,7 @@ def test(sess, model, users_to_test, drop_flag=False, train_set_flag=0):
                                                         model.mess_dropout: [0.] * len(eval(args.layer_size))})
         rate_batch = np.array(rate_batch)# (B, N)
         test_items = []
-        if train_set_flag == 0:
+        if train_set_flag == 0: # in training, it will be false
             for user in user_batch:
                 test_items.append(data_generator.test_set[user])# (B, #test_items)
                 
@@ -65,6 +65,20 @@ def test(sess, model, users_to_test, drop_flag=False, train_set_flag=0):
         else:
             for user in user_batch:
                 test_items.append(data_generator.train_items[user])
+
+        all_rows = []   # put this BEFORE the batches loop (once)
+
+        # inside your for u_batch_id ... loop, after you have rate_batch, test_items, top_items_batch:
+        top_items_batch = np.argsort(-rate_batch, axis=1)[:, :100]
+
+        for i, user in enumerate(user_batch):
+            row = {
+                "user_id": user,
+                "user_ground_truths": list(test_items[i]),              # or just test_items[i]
+                "user_top_k_prediction": top_items_batch[i].tolist()
+            }
+            all_rows.append(row)
+
         
         batch_result = eval_score_matrix_foldout(rate_batch, test_items, max_top)#(B,k*metric_num), max_top= 20
         count += len(batch_result)
@@ -80,6 +94,12 @@ def test(sess, model, users_to_test, drop_flag=False, train_set_flag=0):
     result['precision'] += final_result[0]
     result['recall'] += final_result[1]
     result['ndcg'] += final_result[3]
+
+    if save_recommendation_files:
+        recommendation_files_df = pd.DataFrame(all_rows,
+                  columns=["user_id", "user_ground_truths", "user_top_k_prediction"])
+        return result, recommendation_files_df
+
     return result
                
             

@@ -51,7 +51,7 @@ if __name__ == '__main__':
     init_seed(config['seed'], config['reproducibility'])
 
     ''' init logger '''
-    path = "data/"+config["algo_name"]+"/"+config["dataset"]
+    path = "data/"+"/"+config["dataset"]
     path =   Path(path)
 
     
