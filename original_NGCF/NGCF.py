@@ -15,8 +15,7 @@ from utility.helper import *
 from utility.batch_test import *
 from pathlib import Path
 import time
-path = Path("results/")
-path.mkdir(parents=True, exist_ok=True)
+
 from tqdm import trange
 
 class NGCF(object):
@@ -485,7 +484,7 @@ if __name__ == '__main__':
     training_time = time.time() - start
     start = time.time()
     users_to_test = list(data_generator.test_set.keys())
-    ret = test(sess, model, users_to_test, drop_flag=True)
+    ret, recommendation_files_df = test(sess, model, users_to_test, save_recommendation_files = True, drop_flag=True)
     
     df = pd.DataFrame()
     K = eval(args.Ks)
@@ -499,8 +498,12 @@ if __name__ == '__main__':
     df["P-time"] = [time.time() - start]
     df["AP-time"] = [(time.time() - start) /len(users_to_test)]
     
-    df.to_csv(path / "original_ngcf.csv", index = False, sep = "\t")
-    print(df)
+    # create a required folder....
+    name = "results/ngcf/"+args.dataset+"/"
+    path = Path(name)
+    path.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path / "results.csv", index = False, sep = "\t")
+    recommendation_files_df.to_csv(path / "recommendation_files.csv", index = False, sep = "\t")
 
 
 

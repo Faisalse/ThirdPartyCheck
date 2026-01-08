@@ -10,7 +10,7 @@ from utility.parser import parse_args
 from utility.load_data import *
 import multiprocessing
 import heapq
-
+import pandas as pd
 cores = multiprocessing.cpu_count() // 2
 
 args = parse_args()
@@ -108,7 +108,7 @@ def test_one_user(x):
     return get_performance(user_pos_test, r, auc, Ks)
 
 
-def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False):
+def test(sess, model, users_to_test, save_recommendation_files = False, drop_flag=False, batch_test_flag=False):
     result = {'precision': np.zeros(len(Ks)), 'recall': np.zeros(len(Ks)), 'ndcg': np.zeros(len(Ks)),
               'hit_ratio': np.zeros(len(Ks)), 'auc': 0.}
 
@@ -116,24 +116,18 @@ def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False):
 
     u_batch_size = BATCH_SIZE * 2
     i_batch_size = BATCH_SIZE
-
+    all_rows = []   # put this BEFORE the batches loop (once)
     test_users = users_to_test
     n_test_users = len(test_users)
     n_user_batchs = n_test_users // u_batch_size + 1
-
     count = 0
-
     for u_batch_id in range(n_user_batchs):
         start = u_batch_id * u_batch_size
         end = (u_batch_id + 1) * u_batch_size
-
         user_batch = test_users[start: end]
-
         if batch_test_flag:
-
             n_item_batchs = ITEM_NUM // i_batch_size + 1
             rate_batch = np.zeros(shape=(len(user_batch), ITEM_NUM))
-
             i_count = 0
             for i_batch_id in range(n_item_batchs):
                 i_start = i_batch_id * i_batch_size
@@ -164,11 +158,25 @@ def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False):
                                                               model.pos_items: item_batch,
                                                               model.node_dropout: [0.] * len(eval(args.layer_size)),
                                                               model.mess_dropout: [0.] * len(eval(args.layer_size))})
+                
+        # new code to save recommendation  files......
+        test_items = []
+        rate_batch = np.array(rate_batch)# (B, N)
+        for user in user_batch:
+            test_items.append(data_generator.test_set[user])
 
+        # inside your for u_batch_id ... loop, after you have rate_batch, test_items, top_items_batch:
+        top_items_batch = np.argsort(-rate_batch, axis=1)[:, :100]
+        for i, user in enumerate(user_batch):
+            row = {
+                "user_id": user,
+                "user_ground_truths": list(test_items[i]),              # or just test_items[i]
+                "user_top_k_prediction": top_items_batch[i].tolist()
+            }
+            all_rows.append(row)        
         user_batch_rating_uid = zip(rate_batch, user_batch)
         batch_result = pool.map(test_one_user, user_batch_rating_uid)
         count += len(batch_result)
-
         for re in batch_result:
             result['precision'] += re['precision']/n_test_users
             result['recall'] += re['recall']/n_test_users
@@ -176,7 +184,10 @@ def test(sess, model, users_to_test, drop_flag=False, batch_test_flag=False):
             result['hit_ratio'] += re['hit_ratio']/n_test_users
             result['auc'] += re['auc']/n_test_users
 
-    
     assert count == n_test_users
     pool.close()
+    if save_recommendation_files:
+        recommendation_files_df = pd.DataFrame(all_rows,
+                  columns=["user_id", "user_ground_truths", "user_top_k_prediction"])
+        return result, recommendation_files_df
     return result
